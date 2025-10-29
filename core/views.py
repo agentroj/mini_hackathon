@@ -7,7 +7,7 @@ from datetime import date, timedelta
 import calendar
 
 from .weather_client import get_weather_data
-from .quickbooks_client import get_pnl_data_from_qb
+from .quickbooks_client import get_pnl_data_from_qb, get_pnl_matrix_from_qb
 from .qb_oauth import ensure_valid_access_token, refresh_access_token, get_session_creds
 
 
@@ -68,6 +68,18 @@ def report(request):
 
     temp_data = get_weather_data(zipcode, selected_year if selected_year else current_year, selected_month)
 
+    # Fetch P&L by Month matrix for the table
+    try:
+        pnl_matrix = get_pnl_matrix_from_qb(realm_id, access_token, start_str, end_str)
+    except requests.exceptions.HTTPError as e:
+        if e.response is not None and e.response.status_code == 401:
+            tokens = refresh_access_token(request)
+            realm_id = get_session_creds(request)["realm_id"]
+            access_token = tokens["access_token"]
+            pnl_matrix = get_pnl_matrix_from_qb(realm_id, access_token, start_str, end_str)
+        else:
+            pnl_matrix = {"columns": [], "rows": []}
+
     # Build chart dataset; ensure months show for selection
     month_labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
     if selected_month:
@@ -90,6 +102,7 @@ def report(request):
         "selected_month": selected_month,
         "selected_year": selected_year if selected_year else current_year,
         "year_options": [current_year - i for i in range(0, 6)],
+        "pnl_matrix": pnl_matrix,
     }
     return render(request, "report.html", context)
 

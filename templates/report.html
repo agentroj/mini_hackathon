@@ -109,5 +109,36 @@ new Chart(ctx, {
 }
 </script>
 
+{% if pnl_matrix and pnl_matrix.columns %}
+<h2 class="text-2xl font-semibold mb-4 mt-8">P&L by Month</h2>
+<div class="mb-8 overflow-x-auto">
+  <table class="min-w-full border border-gray-300 text-sm">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="border px-4 py-2 text-left">Account</th>
+        {% for col in pnl_matrix.columns %}
+          <th class="border px-4 py-2 text-right">{{ col }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in pnl_matrix.rows %}
+      <tr class="hover:bg-gray-50">
+        <td class="border px-4 py-2 {% if r.is_total %}font-semibold{% endif %}" style="padding-left: {{ r.level|default:0 }}rem">{{ r.name }}</td>
+        {% for v in r.values %}
+          <td class="border px-4 py-2 text-right">{% if v is not none %}{{ v }}{% endif %}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if not pnl_matrix.rows %}
+  <div class="mt-2 text-sm text-gray-600">No P&L breakdown available for the selected period.</div>
+  {% endif %}
+  
+</div>
+{% endif %}
+
 {% endblock %}
+
 
