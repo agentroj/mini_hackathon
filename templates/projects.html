@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="max-w-5xl mx-auto">
+  <h1 class="text-4xl font-bold mb-6 text-gray-800">Projects</h1>
+
+  <p class="text-lg mb-8 text-gray-700">
+    Here are some of the most significant software projects I’ve designed and developed — spanning
+    backend systems, AI automation, and large-scale data integrations. Each project demonstrates
+    my experience in architecture, API design, and scalable deployment.
+  </p>
+
+  <!-- Project Card -->
+  <div class="grid md:grid-cols-2 gap-8">
+
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100 hover:shadow-md transition">
+      <h2 class="text-2xl font-semibold mb-2 text-blue-700">TicketMonster</h2>
+      <p class="text-gray-700 mb-3">
+        An AI-powered event ticketing platform built with Django REST Framework and React.
+        Features predictive attendance analytics, smart QR check-ins, affiliate systems, and
+        timed entry slot management. Deployed on GCP with CI/CD via GitHub Actions.
+      </p>
+      <ul class="text-sm text-gray-600 list-disc ml-5 mb-2">
+        <li>Stack: Django, React, Redis, Celery, PostgreSQL, Docker</li>
+        <li>Highlights: Predictive models, real-time analytics dashboard</li>
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100 hover:shadow-md transition">
+      <h2 class="text-2xl font-semibold mb-2 text-blue-700">ChoirConnect</h2>
+      <p class="text-gray-700 mb-3">
+        A social platform for choirs and music organizations featuring profile management,
+        booking systems, content sharing, and an internal marketplace for digital sheet music.
+      </p>
+      <ul class="text-sm text-gray-600 list-disc ml-5 mb-2">
+        <li>Stack: Django + React + Supabase + Docker</li>
+        <li>Highlights: Role-based access, cloud media uploads, API authentication</li>
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100 hover:shadow-md transition">
+      <h2 class="text-2xl font-semibold mb-2 text-blue-700">RhythmiCoach</h2>
+      <p class="text-gray-700 mb-3">
+        An interactive rhythm-training app for musicians with real-time feedback and
+        progress tracking. Uses Web Audio API for beat detection and Django backend for analytics.
+      </p>
+      <ul class="text-sm text-gray-600 list-disc ml-5 mb-2">
+        <li>Stack: Django, React, Web Audio API, PostgreSQL</li>
+        <li>Highlights: Real-time feedback, gamified progress tracking</li>
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100 hover:shadow-md transition">
+      <h2 class="text-2xl font-semibold mb-2 text-blue-700">Magnet_X (AI Document Assistant)</h2>
+      <p class="text-gray-700 mb-3">
+        A LangChain-powered platform for PDF extraction and contextual AI chat.
+        Integrates FAISS for vector storage and supports retrieval-augmented generation (RAG) pipelines.
+      </p>
+      <ul class="text-sm text-gray-600 list-disc ml-5 mb-2">
+        <li>Stack: FastAPI, LangChain, FAISS, Supabase, Docker</li>
+        <li>Highlights: Embedding pipelines, query logging, and analytics dashboard</li>
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100 hover:shadow-md transition">
+      <h2 class="text-2xl font-semibold mb-2 text-blue-700">ETL & Data Integration Suite</h2>
+      <p class="text-gray-700 mb-3">
+        Custom Django + Celery data-pipeline system for automating Shopify, CheckoutChamp,
+        and SFTP integrations with BigQuery. Handles 50,000+ records daily with detailed
+        logging and retry mechanisms.
+      </p>
+      <ul class="text-sm text-gray-600 list-disc ml-5 mb-2">
+        <li>Stack: Django, Celery, Redis, BigQuery, PostgreSQL</li>
+        <li>Highlights: Automated ETL jobs, audit logging, dynamic schema mapping</li>
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100 hover:shadow-md transition">
+      <h2 class="text-2xl font-semibold mb-2 text-blue-700">AI Forex Assistant</h2>
+      <p class="text-gray-700 mb-3">
+        A full-stack web app providing AI-driven forex trading signals, insights,
+        and recommendation dashboards using OpenAI GPT APIs and Django backend.
+      </p>
+      <ul class="text-sm text-gray-600 list-disc ml-5 mb-2">
+        <li>Stack: Django, React, OpenAI API, PostgreSQL</li>
+        <li>Highlights: Automated insights, trend analysis, secure user dashboard</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <p class="text-lg mt-10 text-gray-700">
+    Each project reflects my focus on <strong>performance</strong>, <strong>scalability</strong>, and <strong>clean architecture</strong>.
+    I’m continuously exploring new ways to integrate AI, automation, and data pipelines into real-world systems.
+  </p>
+</section>
+{% endblock %}

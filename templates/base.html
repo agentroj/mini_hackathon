@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <nav class="bg-blue-600 p-4 text-white flex justify-between">
+    <a href="/" class="font-bold">Mini Hackathon</a>
+    <div>
+      <a href="/" class="px-2">About</a>
+      <a href="/projects/" class="px-2">Projects</a>
+      <a href="/report/" class="px-2">Report</a>
+    </div>
+  </nav>
+  <main class="p-8">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

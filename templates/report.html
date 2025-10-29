@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-4">Financial & Weather Report</h1>
+
+<form method="GET" class="mb-6">
+  <label for="zipcode" class="font-semibold">Select ZIP Code:</label>
+  <select name="zipcode" id="zipcode" class="border p-2 rounded">
+    <option value="10001" {% if zipcode == "10001" %}selected{% endif %}>10001 (New York)</option>
+    <option value="94105" {% if zipcode == "94105" %}selected{% endif %}>94105 (San Francisco)</option>
+    <option value="60601" {% if zipcode == "60601" %}selected{% endif %}>60601 (Chicago)</option>
+  </select>
+  <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Generate</button>
+</form>
+
+{% if report %}
+<div class="mb-8 overflow-x-auto">
+  <table class="min-w-full border border-gray-300 text-sm">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="border px-4 py-2 text-left">Month</th>
+        <th class="border px-4 py-2 text-left">P&L ($)</th>
+        <th class="border px-4 py-2 text-left">Avg Temp (°F)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in report %}
+      <tr class="hover:bg-gray-50">
+        <td class="border px-4 py-2">{{ row.month }}</td>
+        <td class="border px-4 py-2">{{ row.pnl }}</td>
+        <td class="border px-4 py-2">{{ row.temp }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2 class="text-2xl font-semibold mb-4">Chart View</h2>
+<canvas id="reportChart" height="120"></canvas>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('reportChart');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ months|safe }},
+        datasets: [
+          {
+            label: 'P&L ($)',
+            data: {{ pnl_values|safe }},
+            borderColor: 'blue',
+            backgroundColor: 'rgba(59,130,246,0.2)',
+            yAxisID: 'y',
+          },
+          {
+            label: 'Avg Temp (°F)',
+            data: {{ temp_values|safe }},
+            borderColor: 'orange',
+            backgroundColor: 'rgba(249,115,22,0.2)',
+            yAxisID: 'y1',
+          }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        stacked: false,
+        scales: {
+            y: { type: 'linear', position: 'left', title: { display: true, text: 'P&L ($)' } },
+            y1: { type: 'linear', position: 'right', title: { display: true, text: 'Temp (°F)' },
+                  grid: { drawOnChartArea: false } }
+        }
+    }
+});
+</script>
+
+{% endblock %}
