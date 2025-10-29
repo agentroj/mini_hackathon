@@ -77,6 +77,16 @@ TEMPLATES[0]['DIRS'] = [os.path.join(BASE_DIR, 'templates')]
 
 WSGI_APPLICATION = 'mini_hackathon.wsgi.application'
 
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1,[::1],rojpadidapivotl.pythonanywhere.com,.pythonanywhere.com"
+).split(",")
+
+# Required when using HTTPS on a custom domain/subdomain
+CSRF_TRUSTED_ORIGINS = [
+    "https://rojpadidapivotl.pythonanywhere.com",
+    "https://*.pythonanywhere.com",
+]
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
