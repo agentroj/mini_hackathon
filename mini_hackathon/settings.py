@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'mini_hackathon.wsgi.application'
 
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,[::1],rojpadidapivotl.pythonanywhere.com,.pythonanywhere.com"
+    "localhost,127.0.0.1,[::1],rojpadidapivotl.pythonanywhere.com,.pythonanywhere.com"joozp
 ).split(",")
 
 # Required when using HTTPS on a custom domain/subdomain
@@ -133,15 +133,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]           # <-- your local static folder
+STATIC_ROOT = BASE_DIR / "staticfiles"   
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 QB_CLIENT_ID = os.getenv("QB_CLIENT_ID")
 QB_CLIENT_SECRET = os.getenv("QB_CLIENT_SECRET")
