@@ -66,7 +66,7 @@ def report(request):
         else:
             raise
 
-    temp_data = get_weather_data(zipcode)
+    temp_data = get_weather_data(zipcode, selected_year if selected_year else current_year, selected_month)
 
     # Build chart dataset; ensure months show for selection
     month_labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
