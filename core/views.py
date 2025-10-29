@@ -4,6 +4,7 @@ from django.conf import settings
 import urllib.parse
 import requests
 from datetime import date, timedelta
+import calendar
 
 from .weather_client import get_weather_data
 from .quickbooks_client import get_pnl_data_from_qb
@@ -20,6 +21,15 @@ def projects(request):
 
 def report(request):
     zipcode = request.GET.get('zipcode', '10001')
+    month_str = (request.GET.get('month') or '').strip()
+    year_str = (request.GET.get('year') or '').strip()
+
+    # Parse filters
+    selected_month = int(month_str) if month_str.isdigit() and 1 <= int(month_str) <= 12 else None
+    selected_year = int(year_str) if year_str.isdigit() and 1900 <= int(year_str) <= 3000 else None
+
+    today = date.today()
+    current_year = today.year
 
     # Ensure we have a realmId and a valid access token (refresh if expired)
     try:
@@ -27,8 +37,19 @@ def report(request):
     except RuntimeError:
         return redirect('quickbooks_auth')
 
-    end = date.today()
-    start = end - timedelta(days=365)
+    # Determine date range based on filters
+    if selected_year and selected_month:
+        start = date(selected_year, selected_month, 1)
+        last_day = calendar.monthrange(selected_year, selected_month)[1]
+        end = date(selected_year, selected_month, last_day)
+    elif selected_year:
+        start = date(selected_year, 1, 1)
+        end = date(selected_year, 12, 31)
+    else:
+        # No filters: full current year
+        start = date(current_year, 1, 1)
+        end = date(current_year, 12, 31)
+
     start_str = start.strftime("%Y-%m-%d")
     end_str = end.strftime("%Y-%m-%d")
 
@@ -47,8 +68,12 @@ def report(request):
 
     temp_data = get_weather_data(zipcode)
 
-    # Build chart dataset (keep your existing template)
-    months = list(pnl_data.keys())
+    # Build chart dataset; ensure months show for selection
+    month_labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    if selected_month:
+        months = [month_labels[selected_month - 1]]
+    else:
+        months = month_labels
     report_data = [
         {"month": m, "pnl": pnl_data.get(m, 0), "temp": temp_data.get(m, 0)}
         for m in months
@@ -61,43 +86,16 @@ def report(request):
         "months": [r["month"] for r in report_data],
         "pnl_values": [r["pnl"] for r in report_data],
         "temp_values": [r["temp"] for r in report_data],
+        "no_pnl": not bool(pnl_data),
+        "selected_month": selected_month,
+        "selected_year": selected_year if selected_year else current_year,
+        "year_options": [current_year - i for i in range(0, 6)],
     }
     return render(request, "report.html", context)
 
 
-def quickbooks_auth(request):
-    base = "https://appcenter.intuit.com/connect/oauth2"
-    params = {
-        "client_id": settings.QB_CLIENT_ID,
-        "response_type": "code",
-        "scope": "com.intuit.quickbooks.accounting",
-        "redirect_uri": settings.QB_REDIRECT_URI,
-        "state": "some-random-state"
-    }
-    url = f"{base}?{urllib.parse.urlencode(params)}"
-    return redirect(url)
-
-
-def quickbooks_callback(request):
-    code = request.GET.get("code")
-    realmId = request.GET.get("realmId")
-    if not code or not realmId:
-        return render(request, "error.html", {"message": "QuickBooks authorization failed."})
-
-    token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
-    auth = (settings.QB_CLIENT_ID, settings.QB_CLIENT_SECRET)
-    headers = {"Accept": "application/json"}
-    data = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": settings.QB_REDIRECT_URI
-    }
-    resp = requests.post(token_url, auth=auth, headers=headers, data=data)
-    resp.raise_for_status()
-    tokens = resp.json()
-
-    access_token = tokens["access_token"]
-    refresh_token = tokens["refresh_token"]
-    # store tokens + realmId in your DB or secure storage
-    # ...
-    return redirect("report")  # or wherever
+"""
+QuickBooks auth/callback are implemented in core/views_quickbooks.py and wired via core/urls.py.
+The duplicates previously here caused confusion and could lead to redirect loops
+when the wrong callback didn’t persist tokens. They have been removed.
+"""

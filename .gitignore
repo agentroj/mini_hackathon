@@ -1,0 +1,29 @@
+# Environment / virtualenv
+.env
+.venv/
+venv/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS cruft
+.DS_Store
+Thumbs.db

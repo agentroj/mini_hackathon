@@ -1,11 +1,14 @@
 import requests
 from django.conf import settings
+from datetime import datetime
 
 
 def _pnl_url(realm_id, start_date, end_date):
     return (
-        f"{settings.QB_API_BASE}/{realm_id}/reports/ProfitAndLoss"
-        f"?start_date={start_date}&end_date={end_date}&minorversion={settings.QB_MINOR_VERSION}"
+        f"{settings.QB_API_BASE}/{realm_id}/reports/ProfitAndLossDetail"
+        f"?start_date={start_date}&end_date={end_date}"
+        f"&accounting_method=Accrual"
+        f"&minorversion={settings.QB_MINOR_VERSION}"
     )
 
 
@@ -20,47 +23,73 @@ def get_pnl_data_from_qb(realm_id: str, access_token: str, start_date: str, end_
     resp.raise_for_status()
     data = resp.json()
 
-    # Parse the report format into { 'Jan': amount, ... }
-    # QBO P&L report typically returns Columns (months) and a Total row or rows per category.
-    # Simplify: take the "Net Income" row if present; else sum columns.
-    months = []
+    # Parse ProfitAndLossDetail rows and group by month via TxnDate/Amount columns
     month_amounts = {}
 
     cols = data.get("Columns", {}).get("Column", [])
-    for c in cols:
-        if c.get("ColType") == "Month":
-            months.append(c.get("ColTitle"))  # e.g. 'Jan-2025' or 'Jan'
+    date_idx = None
+    amount_idx = None
+    for idx, c in enumerate(cols):
+        title = (c.get("ColTitle") or "").lower()
+        ctype = (c.get("ColType") or "").lower()
+        if date_idx is None and ("date" in title or ctype == "date"):
+            date_idx = idx
+        if amount_idx is None and ("amount" in title or ctype == "money"):
+            amount_idx = idx
 
-    # Find Net Income row, otherwise sum amounts across rows
-    total_by_col_index = [0.0] * len(months)
+    def _as_float(v):
+        if v is None:
+            return 0.0
+        s = str(v).strip()
+        if not s or s == "-":
+            return 0.0
+        s = s.replace(",", "")
+        if s.startswith("(") and s.endswith(")"):
+            s = "-" + s[1:-1]
+        try:
+            return float(s)
+        except Exception:
+            return 0.0
+
+    if date_idx is None or amount_idx is None:
+        print("[QB PnL] Could not find TxnDate/Amount columns in ProfitAndLossDetail report")
+        return {}
+
+    def add_cells(cells):
+        if not cells:
+            return
+        if max(date_idx, amount_idx) >= len(cells):
+            return
+        date_val = (cells[date_idx] or {}).get("value")
+        amt_val = (cells[amount_idx] or {}).get("value")
+        # Parse date -> month key
+        mkey = None
+        s = (date_val or "").strip()
+        if s:
+            dt = None
+            try:
+                dt = datetime.fromisoformat(s)
+            except Exception:
+                try:
+                    dt = datetime.strptime(s, "%m/%d/%Y")
+                except Exception:
+                    dt = None
+            if dt:
+                mkey = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][dt.month - 1]
+        if not mkey:
+            return
+        amt = _as_float(amt_val)
+        month_amounts[mkey] = round(month_amounts.get(mkey, 0.0) + amt, 2)
+
+    def walk(row):
+        add_cells(row.get("ColData") or [])
+        for sub in (row.get("Rows", {}) or {}).get("Row", []) or []:
+            walk(sub)
+        add_cells((row.get("Summary") or {}).get("ColData") or [])
+
     rows = data.get("Rows", {}).get("Row", [])
     for row in rows:
-        # Each row may be a Summary / Section / Data row
-        cells = row.get("ColData") or []
-        if not cells:
-            # It might be a group; dive one level
-            group_rows = row.get("Rows", {}).get("Row", [])
-            for gr in group_rows:
-                gcells = gr.get("ColData") or []
-                for i, cell in enumerate(gcells):
-                    try:
-                        total_by_col_index[i] += float(cell.get("value", "0") or 0)
-                    except Exception:
-                        pass
-            continue
+        walk(row)
 
-        # Flat row — just add numbers
-        for i, cell in enumerate(cells):
-            try:
-                total_by_col_index[i] += float(cell.get("value", "0") or 0)
-            except Exception:
-                pass
-
-    # Normalize month labels like 'Jan-2025' -> 'Jan'
-    def _short(m):
-        return (m or "").split("-")[0][:3] if m else ""
-
-    for i, m in enumerate(months):
-        month_amounts[_short(m) or f"M{i+1}"] = round(total_by_col_index[i], 2)
-
+    print(f"[QB PnL] Parsed month totals (detail): {month_amounts}")
     return month_amounts

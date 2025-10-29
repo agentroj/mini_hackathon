@@ -9,8 +9,40 @@
     <option value="94105" {% if zipcode == "94105" %}selected{% endif %}>94105 (San Francisco)</option>
     <option value="60601" {% if zipcode == "60601" %}selected{% endif %}>60601 (Chicago)</option>
   </select>
+
+  <label for="year" class="font-semibold ml-4">Year:</label>
+  <select name="year" id="year" class="border p-2 rounded">
+    {% for y in year_options %}
+      <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="month" class="font-semibold ml-4">Month:</label>
+  <select name="month" id="month" class="border p-2 rounded">
+    <option value="">All</option>
+    <option value="1" {% if selected_month == 1 %}selected{% endif %}>Jan</option>
+    <option value="2" {% if selected_month == 2 %}selected{% endif %}>Feb</option>
+    <option value="3" {% if selected_month == 3 %}selected{% endif %}>Mar</option>
+    <option value="4" {% if selected_month == 4 %}selected{% endif %}>Apr</option>
+    <option value="5" {% if selected_month == 5 %}selected{% endif %}>May</option>
+    <option value="6" {% if selected_month == 6 %}selected{% endif %}>Jun</option>
+    <option value="7" {% if selected_month == 7 %}selected{% endif %}>Jul</option>
+    <option value="8" {% if selected_month == 8 %}selected{% endif %}>Aug</option>
+    <option value="9" {% if selected_month == 9 %}selected{% endif %}>Sep</option>
+    <option value="10" {% if selected_month == 10 %}selected{% endif %}>Oct</option>
+    <option value="11" {% if selected_month == 11 %}selected{% endif %}>Nov</option>
+    <option value="12" {% if selected_month == 12 %}selected{% endif %}>Dec</option>
+  </select>
+
   <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Generate</button>
+  <a href="/report/?zipcode={{ zipcode }}" class="ml-2 bg-gray-200 text-gray-800 px-4 py-2 rounded inline-block">Reset</a>
 </form>
+
+{% if no_pnl %}
+<div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded">
+  No QuickBooks P&L data for the selected period. Showing weather data with P&L as 0.
+</div>
+{% endif %}
 
 {% if report %}
 <div class="mb-8 overflow-x-auto">
@@ -41,6 +73,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('reportChart');
+if (ctx) {
 new Chart(ctx, {
     type: 'line',
     data: {
@@ -73,6 +106,7 @@ new Chart(ctx, {
         }
     }
 });
+}
 </script>
 
 {% endblock %}

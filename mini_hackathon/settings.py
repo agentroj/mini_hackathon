@@ -137,7 +137,7 @@ QB_CLIENT_ID = os.getenv("QB_CLIENT_ID")
 QB_CLIENT_SECRET = os.getenv("QB_CLIENT_SECRET")
 QB_REDIRECT_URI = os.getenv("QB_REDIRECT_URI")
 QB_ENV = os.getenv("QB_ENV", "sandbox")
-QB_MINOR_VERSION = os.getenv("QB_MINOR_VERSION", "70")
+QB_MINOR_VERSION = os.getenv("QB_MINOR_VERSION", "75")
 
 # Base URLs
 if QB_ENV == "production":
