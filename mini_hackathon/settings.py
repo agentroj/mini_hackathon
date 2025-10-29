@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'mini_hackathon.wsgi.application'
 
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,[::1],rojpadidapivotl.pythonanywhere.com,.pythonanywhere.com"joozp
+    "localhost,127.0.0.1,[::1],rojpadidapivotl.pythonanywhere.com,.pythonanywhere.com" # noqa
 ).split(",")
 
 # Required when using HTTPS on a custom domain/subdomain
